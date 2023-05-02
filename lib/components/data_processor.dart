@@ -10,7 +10,7 @@ class DataResponse {
 }
 
 class DataProcessor {
-  final String apiUrl = 'http://localhost:8001/api/price';
+  final String apiUrl = 'https://humanova.space/api/price';
 
   Future<DataResponse> getPrices(String imageBase64) async {
     try {
@@ -23,7 +23,8 @@ class DataProcessor {
       );
 
       return DataResponse(
-          isSuccess: response.statusCode == 200, data: response.body);
+          isSuccess: response.statusCode == 200,
+          data: json.decode(utf8.decode(response.bodyBytes)));
     } catch (e) {
       return DataResponse(isSuccess: false, data: e.toString());
     }
@@ -34,11 +35,12 @@ class DataProcessor {
     final String image = jsonData['image'];
     final List<dynamic> pricesData = jsonData['prices'];
 
-    final List<Price> prices = pricesData.map((data) {
-      final String store = data['store'];
-      final double price = data['price'];
-      return Price(store: store, price: price);
-    }).toList();
+    final List<Price> prices = pricesData
+        .map((dynamic priceData) => Price(
+              store: priceData['store'],
+              price: priceData['price'].toDouble(),
+            ))
+        .toList();
 
     return Product(name: name, image: image, prices: prices);
   }

@@ -37,7 +37,7 @@ class ProductCard extends StatelessWidget {
                     ),
                     SizedBox(height: 8.0),
                     Text(
-                      'Price: {product.prices.first.value} ₺',
+                      'Price: ${product.prices.first.price} ₺',
                       style: Theme.of(context).textTheme.subtitle1,
                     ),
                   ],

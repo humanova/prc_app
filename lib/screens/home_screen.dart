@@ -7,7 +7,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Product Price Comparison'),
+        title: Text('PRC'),
       ),
       body: Center(
         child: Column(
@@ -31,7 +31,7 @@ class HomeScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => ImageScreen()),
                 );
               },
-              child: Text('Take a Picture'),
+              child: Text('Find Prices'),
             ),
           ],
         ),

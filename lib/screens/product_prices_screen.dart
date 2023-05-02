@@ -45,10 +45,12 @@ class _ProductPricesScreenState extends State<ProductPricesScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(
-            height: 200.0,
+            height: 250.0,
+            width: 200.0,
             child: Image.network(
               widget.product.image,
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
+              width: 200.0,
             ),
           ),
           Expanded(
@@ -59,7 +61,7 @@ class _ProductPricesScreenState extends State<ProductPricesScreen> {
 
                 return ListTile(
                   title: Text(price.store),
-                  subtitle: Text(price.toString()),
+                  subtitle: Text(price.price.toString()),
                 );
               },
             ),
