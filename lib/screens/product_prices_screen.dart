@@ -61,7 +61,7 @@ class _ProductPricesScreenState extends State<ProductPricesScreen> {
 
                 return ListTile(
                   title: Text(price.store),
-                  subtitle: Text(price.price.toString()),
+                  subtitle: Text('${price.price.toString()} ₺'),
                 );
               },
             ),

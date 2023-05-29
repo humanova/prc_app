@@ -31,7 +31,8 @@ class _ImageScreenState extends State<ImageScreen> {
   }
 
   Future<void> _getImageFromGallery() async {
-    final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().getImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       setState(() {
@@ -44,8 +45,9 @@ class _ImageScreenState extends State<ImageScreen> {
     setState(() {
       _isLoading = true;
     });
-    
-    final response = await dataProcessor.getPrices(base64Encode(_image.readAsBytesSync()));
+
+    final response = await dataProcessor
+        .getPricesByImage(base64Encode(_image.readAsBytesSync()));
 
     setState(() {
       _isLoading = false;
@@ -53,13 +55,122 @@ class _ImageScreenState extends State<ImageScreen> {
 
     if (response.isSuccess) {
       Product product = dataProcessor.parseProduct(response.data);
-      pSearchStorage.saveSearch(product);
 
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => ProductPricesScreen(product: product),
-      ));
+      // Prompt the user to confirm the product
+      bool confirmProduct = await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('Confirm the Product'),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Center(
+                child: Image.network(
+                  product.image,
+                  height: 100,
+                ),
+              ),
+              SizedBox(height: 15),
+              Text(product.name),
+              Text('\nIs this the product you are looking for?'),
+            ],
+          ),
+          actions: [
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // User confirms the product
+              },
+              child: Text('Yes'),
+            ),
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(false); // User wants to rewrite the query
+              },
+              child: Text('No'),
+            ),
+          ],
+        ),
+      );
+
+      if (confirmProduct == true) {
+        pSearchStorage.saveSearch(product);
+
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => ProductPricesScreen(product: product),
+        ));
+      } else if (confirmProduct == false) {
+        // User wants to rewrite the query
+        String rewrittenQuery = await showDialog(
+          context: context,
+          builder: (_) {
+            TextEditingController queryController =
+                TextEditingController(text: product.query);
+
+            return AlertDialog(
+              title: Text('Rewrite the query'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: queryController,
+                      onChanged: (value) {
+                        // Handle the query text change
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                FlatButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: Text('Cancel'),
+                ),
+                FlatButton(
+                  onPressed: () {
+                    String rewrittenQuery = queryController
+                        .text; // Get the rewritten query from the TextField
+                    Navigator.of(context)
+                        .pop(rewrittenQuery); // Pass the rewritten query back
+                  },
+                  child: Text('Confirm'),
+                ),
+              ],
+            );
+          },
+        );
+
+        if (rewrittenQuery != null) {
+          // Send getPricesByQuery request with the rewritten query
+          final queryResponse =
+              await dataProcessor.getPricesByQuery(rewrittenQuery);
+
+          if (queryResponse.isSuccess) {
+            Product rewrittenProduct =
+                dataProcessor.parseProduct(queryResponse.data);
+            pSearchStorage.saveSearch(rewrittenProduct);
+
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => ProductPricesScreen(product: rewrittenProduct),
+            ));
+          } else {
+            // Show error message for query response failure
+            showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                title: Text('Error'),
+                content: Text('Failed to get prices for the rewritten query.'),
+              ),
+            );
+          }
+        }
+      }
     } else {
-      // Show error message
+      // Show error message for image response failure
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -67,17 +178,17 @@ class _ImageScreenState extends State<ImageScreen> {
           content: Text('Failed to get prices.'),
         ),
       );
-      //Navigator.pop(context);
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Image Screen'),
-      ),
-      body: Center(
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Search For Product Prices'),
+    ),
+    body: Center(
+      child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -88,31 +199,59 @@ class _ImageScreenState extends State<ImageScreen> {
                 height: 420,
               ),
             SizedBox(height: 20),
-            if (_image == null) 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: _getImageFromCamera,
-                  child: Text('Take Picture'),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: _getImageFromGallery,
-                  child: Text('Choose from Gallery'),
-                ),
-              ],
-            ),
+            if (_image == null)
+              Column(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: _getImageFromCamera,
+                    icon: Icon(Icons.camera_alt),
+                    label: Text('Take A Picture'),
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      textStyle: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  ElevatedButton.icon(
+                    onPressed: _getImageFromGallery,
+                    icon: Icon(Icons.photo_library),
+                    label: Text('Choose From Gallery'),
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      textStyle: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                ],
+              ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _image == null ? null : _getPricesFromAPI,
-              child: _isLoading
-                  ? CircularProgressIndicator()
-                  : Text('Get Prices'),
+            Opacity(
+              opacity: _isLoading ? 0.0 : 1.0, // Make the button invisible when loading
+              child: ElevatedButton(
+                onPressed: _image == null ? null : _getPricesFromAPI,
+                child: Text('Get Prices'),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                  textStyle: TextStyle(fontSize: 24),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 4,
+                  primary: Colors.blue, // Customize the button color
+                  onPrimary: Colors.white, // Customize the text color
+                ),
+              ),
             ),
+            if (_isLoading)
+              SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(),
+              ),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 }
