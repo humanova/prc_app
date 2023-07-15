@@ -1,3 +1,5 @@
+
+https://github.com/humanova/prc_app/assets/22047571/20596371-0ec7-4190-b170-6f6fae92f1fe
 # prc_app
 
 Built with Flutter, this application provides a convenient way for users to find the price of a product by simply taking an image of it.
@@ -6,5 +8,6 @@ Built with Flutter, this application provides a convenient way for users to find
 
 ## Demo
 
-https://github.com/humanova/prc_app/assets/22047571/a1c30eea-a8f5-499a-8e67-804b999271d6
+
+https://github.com/humanova/prc_app/assets/22047571/87ead096-307b-499a-89a1-c80412de1f1e
 
