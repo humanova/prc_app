@@ -1,16 +1,10 @@
 # prc_app
 
-A new Flutter project.
+Built with Flutter, this application provides a convenient way for users to find the price of a product by simply taking an image of it.
 
-## Getting Started
+[The API](https://github.com/humanova/prc_src) accepts an image of a product, and returns its price data from various online stores. Product name is extracted from the image using EasyOCR. The price data is then retrieved from Cimri.com. To handle the bad OCR output, a Fuzzy Matching algorithm is applied to DuckDuckGo search results before querying the Cimri API.
 
-This project is a starting point for a Flutter application.
+## Demo
 
-A few resources to get you started if this is your first Flutter project:
+https://github.com/humanova/prc_app/assets/22047571/a1c30eea-a8f5-499a-8e67-804b999271d6
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
