@@ -41,4 +41,9 @@ class ProductSearchStorage {
       prefs.setString(_kSearchHistoryKey, jsonEncode([product.toJson()]));
     }
   }
+
+  Future<void> clearSearchHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove(_kSearchHistoryKey);
+  }
 }

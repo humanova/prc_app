@@ -34,11 +34,24 @@ class _SearchHistoryScreenState extends State<SearchHistoryScreen> {
     );
   }
 
+  void _clearSearchHistory(){
+    setState(() {
+      _searchHistory.clear();
+      pSearchStorage.clearSearchHistory();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Search History'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.delete_outline),
+            onPressed: () => _clearSearchHistory(),
+          )
+        ],
       ),
       body: ListView.builder(
         itemCount: _searchHistory.length,
