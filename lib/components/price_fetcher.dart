@@ -9,10 +9,10 @@ class DataResponse {
   DataResponse({this.isSuccess, this.data});
 }
 
-class DataProcessor {
+class PriceFetcher {
   final String apiUrl = 'https://humanova.space/api/price';
 
-  Future<DataResponse> getPricesByImage(String imageBase64) async {
+  Future<DataResponse> getPricesByImageData(String imageBase64) async {
     try {
       final response = await http.post(
         apiUrl,
@@ -30,7 +30,7 @@ class DataProcessor {
     }
   }
 
-  Future<DataResponse> getPricesByQuery(String query) async {
+  Future<DataResponse> getPricesByTextQuery(String query) async {
     try {
       final response = await http.post(
         apiUrl,
@@ -48,7 +48,7 @@ class DataProcessor {
     }
   }
 
-  Product parseProduct(dynamic jsonData) {
+  Product parseProductDetails(dynamic jsonData) {
     final String name = jsonData['name'];
     final String image = jsonData['image'];
     final String query = jsonData['query'];
